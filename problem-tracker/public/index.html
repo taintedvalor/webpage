@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Problem Status</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Existing problems will be loaded dynamically here via JavaScript -->
+    <div id="problems-container"></div>
+
+    <!-- Button to add a new problem -->
+    <button id="addProblem">Add Problem</button>
+
+    <script>
+        // JavaScript code to load existing problems and add new ones
+        // This code will use fetch to communicate with the server
+        const problemsContainer = document.getElementById("problems-container");
+        const addProblemButton = document.getElementById("addProblem");
+
+        // Function to load problems from the server
+        async function loadProblems() {
+            const response = await fetch('/problems');
+            const problems = await response.json();
+
+            problemsContainer.innerHTML = ''; // Clear existing problems
+
+            problems.forEach(problem => {
+                const problemDiv = document.createElement("div");
+                problemDiv.className = `problem ${problem.status}`;
+                problemDiv.innerHTML = `
+                    <div class="problem-header">${problem.title}</div>
+                    <div>Status: ${problem.status}</div>
+                    <!-- Add more information here -->
+                `;
+
+                // Add a delete button to remove the problem
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+                deleteButton.addEventListener("click", () => {
+                    deleteProblem(problem.id);
+                });
+
+                problemDiv.appendChild(deleteButton);
+
+                problemsContainer.appendChild(problemDiv);
+            });
+        }
+
+        // Function to add a new problem
+        async function addProblem() {
+            const response = await fetch('/problems', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    title: "New Problem",
+                    status: "Unattended",
+                }),
+            });
+
+            if (response.status === 201) {
+                loadProblems();
+            }
+        }
+
+        // Function to delete a problem
+        async function deleteProblem(id) {
+            const response = await fetch(`/problems/${id}`, {
+                method: 'DELETE',
+            });
+
+            if (response.status === 204) {
+                loadProblems();
+            }
+        }
+
+        // Load existing problems when the page loads
+        loadProblems();
+
+        // Attach event listeners
+        addProblemButton.addEventListener("click", addProblem);
+    </script>
+</body>
+</html>
