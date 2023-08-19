@@ -1,66 +1,66 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-
 const app = express();
-const port = 3000; // You can change this to your desired port
+const port = process.env.PORT || 3000;
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(express.json());
 
-const problems = []; // Array to store the problems
+// In-memory storage for problems (you can replace this with a database)
+const problems = [];
 
-app.use(express.static('public')); // Assuming your static files are in the 'public' directory
+// API endpoint to add a new problem
+app.post('/api/problems', (req, res) => {
+    const { title, description, status } = req.body;
 
-app.get('/problems', (req, res) => {
+    if (!title || !description || !status) {
+        return res.status(400).json({ error: 'Title, description, and status are required.' });
+    }
+
+    const newProblem = {
+        id: problems.length + 1,
+        title,
+        description,
+        status
+    };
+
+    problems.push(newProblem);
+
+    res.status(201).json(newProblem);
+});
+
+// API endpoint to get all problems
+app.get('/api/problems', (req, res) => {
     res.json(problems);
 });
 
-app.post('/problems', (req, res) => {
-    const { title, description } = req.body;
-
-    if (title && description) {
-        const newProblem = {
-            title,
-            description,
-            status: 'unhandled'
-        };
-
-        problems.push(newProblem);
-        res.status(201).json(newProblem);
-    } else {
-        res.status(400).json({ error: 'Title and description are required.' });
-    }
-});
-
-app.put('/problems/:id', (req, res) => {
-    const id = parseInt(req.params.id);
+// API endpoint to update the status of a problem by ID
+app.put('/api/problems/:id', (req, res) => {
+    const { id } = req.params;
     const { status } = req.body;
 
-    if (!isNaN(id) && status) {
-        if (id >= 0 && id < problems.length) {
-            problems[id].status = status;
-            res.json(problems[id]);
-        } else {
-            res.status(404).json({ error: 'Problem not found.' });
-        }
-    } else {
-        res.status(400).json({ error: 'Invalid request.' });
+    const problem = problems.find(p => p.id === parseInt(id));
+
+    if (!problem) {
+        return res.status(404).json({ error: 'Problem not found.' });
     }
+
+    problem.status = status;
+
+    res.json(problem);
 });
 
-app.delete('/problems/:id', (req, res) => {
-    const id = parseInt(req.params.id);
+// API endpoint to delete a problem by ID
+app.delete('/api/problems/:id', (req, res) => {
+    const { id } = req.params;
 
-    if (!isNaN(id)) {
-        if (id >= 0 && id < problems.length) {
-            const deletedProblem = problems.splice(id, 1);
-            res.json(deletedProblem);
-        } else {
-            res.status(404).json({ error: 'Problem not found.' });
-        }
-    } else {
-        res.status(400).json({ error: 'Invalid request.' });
+    const index = problems.findIndex(p => p.id === parseInt(id));
+
+    if (index === -1) {
+        return res.status(404).json({ error: 'Problem not found.' });
     }
+
+    problems.splice(index, 1);
+
+    res.sendStatus(204);
 });
 
 app.listen(port, () => {
