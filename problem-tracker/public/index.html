@@ -2,21 +2,27 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Problem Status</title>
+    <title>Problem Tracker</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <h1>Problem Tracker</h1>
+
+    <!-- Input for adding a new problem -->
+    <input type="text" id="problemName" placeholder="Enter problem name" required>
+    <button id="addProblem">Add Problem</button>
+
+    <!-- Search bar -->
+    <input type="text" id="searchInput" placeholder="Search by problem name">
+
     <!-- Existing problems will be loaded dynamically here via JavaScript -->
     <div id="problems-container"></div>
 
-    <!-- Button to add a new problem -->
-    <button id="addProblem">Add Problem</button>
-
     <script>
-        // JavaScript code to load existing problems and add new ones
-        // This code will use fetch to communicate with the server
         const problemsContainer = document.getElementById("problems-container");
         const addProblemButton = document.getElementById("addProblem");
+        const problemNameInput = document.getElementById("problemName");
+        const searchInput = document.getElementById("searchInput");
 
         // Function to load problems from the server
         async function loadProblems() {
@@ -26,41 +32,53 @@
             problemsContainer.innerHTML = ''; // Clear existing problems
 
             problems.forEach(problem => {
-                const problemDiv = document.createElement("div");
-                problemDiv.className = `problem ${problem.status}`;
-                problemDiv.innerHTML = `
-                    <div class="problem-header">${problem.title}</div>
-                    <div>Status: ${problem.status}</div>
-                    <!-- Add more information here -->
-                `;
-
-                // Add a delete button to remove the problem
-                const deleteButton = document.createElement("button");
-                deleteButton.textContent = "Delete";
-                deleteButton.addEventListener("click", () => {
-                    deleteProblem(problem.id);
-                });
-
-                problemDiv.appendChild(deleteButton);
-
+                const problemDiv = createProblemElement(problem);
                 problemsContainer.appendChild(problemDiv);
             });
         }
 
+        // Function to create a new problem element
+        function createProblemElement(problem) {
+            const problemDiv = document.createElement("div");
+            problemDiv.className = `problem ${problem.status}`;
+            problemDiv.innerHTML = `
+                <div class="problem-header">${problem.title}</div>
+                <div>Status: ${problem.status}</div>
+                <!-- Add more information here -->
+
+                <!-- Delete button -->
+                <button class="delete-button" data-id="${problem.id}">Delete</button>
+            `;
+
+            // Add an event listener to delete the problem
+            const deleteButton = problemDiv.querySelector(".delete-button");
+            deleteButton.addEventListener("click", () => {
+                deleteProblem(problem.id);
+            });
+
+            return problemDiv;
+        }
+
         // Function to add a new problem
         async function addProblem() {
+            const problemName = problemNameInput.value.trim();
+            if (problemName === "") {
+                return; // Don't add empty problems
+            }
+
             const response = await fetch('/problems', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    title: "New Problem",
+                    title: problemName,
                     status: "Unattended",
                 }),
             });
 
             if (response.status === 201) {
+                problemNameInput.value = ""; // Clear the input field
                 loadProblems();
             }
         }
@@ -76,11 +94,27 @@
             }
         }
 
-        // Load existing problems when the page loads
-        loadProblems();
+        // Function to filter problems by name
+        function filterProblemsByName() {
+            const searchValue = searchInput.value.toLowerCase();
+            const problemElements = Array.from(problemsContainer.getElementsByClassName("problem"));
+
+            problemElements.forEach(problemDiv => {
+                const problemHeader = problemDiv.querySelector(".problem-header").textContent.toLowerCase();
+                if (problemHeader.includes(searchValue)) {
+                    problemDiv.style.display = "block";
+                } else {
+                    problemDiv.style.display = "none";
+                }
+            });
+        }
 
         // Attach event listeners
         addProblemButton.addEventListener("click", addProblem);
+        searchInput.addEventListener("input", filterProblemsByName);
+
+        // Load existing problems when the page loads
+        loadProblems();
     </script>
 </body>
 </html>
