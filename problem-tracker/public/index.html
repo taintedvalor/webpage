@@ -8,21 +8,31 @@
 <body>
     <h1>Problem Tracker</h1>
 
-    <!-- Input for adding a new problem -->
-    <input type="text" id="problemName" placeholder="Enter problem name" required>
-    <button id="addProblem">Add Problem</button>
+    <!-- Search bar in the top right corner -->
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search by problem name">
+    </div>
 
-    <!-- Search bar -->
-    <input type="text" id="searchInput" placeholder="Search by problem name">
+    <!-- Problem tracker in the middle -->
+    <div id="problems-container">
+        <!-- Existing problems will be loaded dynamically here via JavaScript -->
+    </div>
 
-    <!-- Existing problems will be loaded dynamically here via JavaScript -->
-    <div id="problems-container"></div>
+    <!-- Input for adding a new problem at the bottom -->
+    <div class="add-problem-container">
+        <input type="text" id="problemName" placeholder="Enter problem name" required>
+        <button id="addProblem">Add Problem</button>
+    </div>
+
+    <!-- Modpack version information -->
+    <div id="modpackVersion"></div>
 
     <script>
         const problemsContainer = document.getElementById("problems-container");
+        const searchInput = document.getElementById("searchInput");
         const addProblemButton = document.getElementById("addProblem");
         const problemNameInput = document.getElementById("problemName");
-        const searchInput = document.getElementById("searchInput");
+        const modpackVersion = document.getElementById("modpackVersion");
 
         // Function to load problems from the server
         async function loadProblems() {
@@ -44,17 +54,27 @@
             problemDiv.innerHTML = `
                 <div class="problem-header">${problem.title}</div>
                 <div>Status: ${problem.status}</div>
-                <!-- Add more information here -->
-
-                <!-- Delete button -->
-                <button class="delete-button" data-id="${problem.id}">Delete</button>
+                
+                <!-- Add buttons for editing and deleting (only if the user created the problem) -->
+                ${problem.editable ? `
+                    <button class="edit-button" data-id="${problem.id}">Edit</button>
+                    <button class="delete-button" data-id="${problem.id}">Delete</button>
+                ` : ''}
             `;
 
-            // Add an event listener to delete the problem
-            const deleteButton = problemDiv.querySelector(".delete-button");
-            deleteButton.addEventListener("click", () => {
-                deleteProblem(problem.id);
-            });
+            // Add event listeners for edit and delete (only if the user created the problem)
+            if (problem.editable) {
+                const editButton = problemDiv.querySelector(".edit-button");
+                const deleteButton = problemDiv.querySelector(".delete-button");
+
+                editButton.addEventListener("click", () => {
+                    editProblem(problem.id);
+                });
+
+                deleteButton.addEventListener("click", () => {
+                    deleteProblem(problem.id);
+                });
+            }
 
             return problemDiv;
         }
@@ -74,6 +94,7 @@
                 body: JSON.stringify({
                     title: problemName,
                     status: "Unattended",
+                    editable: true, // The user who adds a problem can edit and delete it
                 }),
             });
 
@@ -81,6 +102,11 @@
                 problemNameInput.value = ""; // Clear the input field
                 loadProblems();
             }
+        }
+
+        // Function to edit a problem (placeholder, you can implement this if needed)
+        function editProblem(id) {
+            // Implement edit functionality here
         }
 
         // Function to delete a problem
@@ -115,6 +141,9 @@
 
         // Load existing problems when the page loads
         loadProblems();
+
+        // Set the modpack version (you can replace this with actual version information)
+        modpackVersion.textContent = "Modpack Version: Customizable";
     </script>
 </body>
 </html>
