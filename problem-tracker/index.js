@@ -1,83 +1,51 @@
-/* Reset some default browser styles */
-body, h1, h2, ul, p {
-    margin: 0;
-    padding: 0;
-}
+const express = require('express');
+const app = express();
+const port = 3000;
 
-/* Set a dark background color and light text color for the body */
-body {
-    background-color: #333;
-    font-family: Arial, sans-serif;
-    color: #fff;
-    margin: 0;
-    padding: 0;
-}
+app.use(express.static('public'));
+app.use(express.json());
 
-/* Style the header with a darker background color and centered text */
-h1 {
-    background-color: #222;
-    color: #fff;
-    text-align: center;
-    padding: 20px 0;
-    margin-bottom: 20px;
-}
+// Store problem reports in memory (replace with a database in production)
+const problems = [];
+let modPackVersion = "1.0"; // Default mod pack version
 
-/* Center the content on the page */
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #444;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-}
+// Serve the problems.html page
+app.get('/problems', (req, res) => {
+    res.sendFile(__dirname + '/public/problems.html');
+});
 
-/* Style input fields and textareas with a dark background */
-input[type="text"],
-textarea {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    margin-bottom: 15px;
-    background-color: #555;
-    border: 1px solid #444;
-    border-radius: 3px;
-    color: #fff;
-}
+// Serve the inputconsole.html page
+app.get('/inputconsole', (req, res) => {
+    res.sendFile(__dirname + '/public/inputconsole.html');
+});
 
-/* Style buttons with a dark background and light text */
-button {
-    background-color: #007bff;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-}
+// Endpoint for submitting a problem report
+app.post('/submitProblem', (req, res) => {
+    const { title, description, status } = req.body;
+    if (title && description) {
+        problems.push({ title, description, status });
+        res.sendStatus(200);
+    } else {
+        res.sendStatus(400); // Bad Request
+    }
+});
 
-button:hover {
-    background-color: #0056b3;
-}
+// Endpoint for getting the list of problems
+app.get('/getProblems', (req, res) => {
+    res.json(problems);
+});
 
-/* Style the problem list with a dark background */
-#problemList {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-}
+// Endpoint for updating the mod pack version
+app.post('/updateModPackVersion', (req, res) => {
+    const { version } = req.body;
+    if (version) {
+        modPackVersion = version;
+        res.sendStatus(200);
+    } else {
+        res.sendStatus(400); // Bad Request
+    }
+});
 
-#problemList li {
-    background-color: #555;
-    border: 1px solid #444;
-    border-radius: 5px;
-    padding: 10px;
-    margin-bottom: 10px;
-    color: #fff;
-}
-
-/* Style the mod pack version display with a dark background */
-#modPackVersion {
-    font-weight: bold;
-    color: #007bff;
-}
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
