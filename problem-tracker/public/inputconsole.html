@@ -4,70 +4,31 @@
     <meta charset="UTF-8">
     <title>Submit a Problem</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-
-        label {
-            display: block;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        input[type="text"],
-        textarea {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-        }
-
-        button {
-            background-color: #007bff;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Submit a Problem</h1>
+    <h1>Submit a Problem</h1>
 
+    <form id="problemForm">
         <label for="titleInput">Title:</label>
-        <input type="text" id="titleInput" placeholder="Enter a brief title for the problem">
+        <input type="text" id="titleInput" name="title" placeholder="Enter a brief title for the problem" required>
 
         <label for="descriptionInput">Description:</label>
-        <textarea id="descriptionInput" placeholder="Enter a detailed description of the problem"></textarea>
+        <textarea id="descriptionInput" name="description" placeholder="Enter a detailed description of the problem" required></textarea>
 
-        <button id="submitProblem">Submit Problem</button>
-    </div>
+        <button type="submit">Submit Problem</button>
+    </form>
 
     <!-- JavaScript code for handling problem submission -->
     <script>
         // Function to submit a problem report to the server
-        async function submitProblemReport() {
-            const title = document.getElementById("titleInput").value;
-            const description = document.getElementById("descriptionInput").value;
+        async function submitProblemReport(event) {
+            event.preventDefault();
+
+            const form = document.getElementById("problemForm");
+            const formData = new FormData(form);
+
+            const title = formData.get("title");
+            const description = formData.get("description");
 
             if (!title || !description) {
                 alert("Please enter both a title and a description.");
@@ -84,15 +45,14 @@
 
             if (response.status === 200) {
                 alert("Problem report submitted successfully!");
-                document.getElementById("titleInput").value = "";
-                document.getElementById("descriptionInput").value = "";
+                form.reset();
             } else {
                 alert("Error submitting problem report.");
             }
         }
 
-        // Attach event listener to the submit button
-        document.getElementById("submitProblem").addEventListener("click", submitProblemReport);
+        // Attach event listener to the form submit event
+        document.getElementById("problemForm").addEventListener("submit", submitProblemReport);
     </script>
 </body>
 </html>
