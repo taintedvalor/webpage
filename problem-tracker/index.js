@@ -1,48 +1,65 @@
 const express = require('express');
+const bodyParser = require('body-parser');
+
 const app = express();
-const port = 3000;
+const port = 3000; // You can change this to your desired port
 
-app.use(express.static('public'));
-app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-// Store problem reports in memory (replace with a database in production)
-const problems = [];
-let modPackVersion = "1.0"; // Default mod pack version
+const problems = []; // Array to store the problems
 
-// Serve the problems.html page
+app.use(express.static('public')); // Assuming your static files are in the 'public' directory
+
 app.get('/problems', (req, res) => {
-    res.sendFile(__dirname + '/public/problems.html');
-});
-
-// Serve the inputconsole.html page
-app.get('/inputconsole', (req, res) => {
-    res.sendFile(__dirname + '/public/inputconsole.html');
-});
-
-// Endpoint for submitting a problem report
-app.post('/submitProblem', (req, res) => {
-    const { title, description, status } = req.body;
-    if (title && description) {
-        problems.push({ title, description, status });
-        res.sendStatus(200);
-    } else {
-        res.sendStatus(400); // Bad Request
-    }
-});
-
-// Endpoint for getting the list of problems
-app.get('/getProblems', (req, res) => {
     res.json(problems);
 });
 
-// Endpoint for updating the mod pack version
-app.post('/updateModPackVersion', (req, res) => {
-    const { version } = req.body;
-    if (version) {
-        modPackVersion = version;
-        res.sendStatus(200);
+app.post('/problems', (req, res) => {
+    const { title, description } = req.body;
+
+    if (title && description) {
+        const newProblem = {
+            title,
+            description,
+            status: 'unhandled'
+        };
+
+        problems.push(newProblem);
+        res.status(201).json(newProblem);
     } else {
-        res.sendStatus(400); // Bad Request
+        res.status(400).json({ error: 'Title and description are required.' });
+    }
+});
+
+app.put('/problems/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const { status } = req.body;
+
+    if (!isNaN(id) && status) {
+        if (id >= 0 && id < problems.length) {
+            problems[id].status = status;
+            res.json(problems[id]);
+        } else {
+            res.status(404).json({ error: 'Problem not found.' });
+        }
+    } else {
+        res.status(400).json({ error: 'Invalid request.' });
+    }
+});
+
+app.delete('/problems/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+
+    if (!isNaN(id)) {
+        if (id >= 0 && id < problems.length) {
+            const deletedProblem = problems.splice(id, 1);
+            res.json(deletedProblem);
+        } else {
+            res.status(404).json({ error: 'Problem not found.' });
+        }
+    } else {
+        res.status(400).json({ error: 'Invalid request.' });
     }
 });
 
