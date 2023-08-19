@@ -87,58 +87,104 @@
         <button id="add-problem-button">Add Problem</button>
     </div>
     <div id="problem-list">
-        <!-- Problems will be added here dynamically -->
+        <!-- Problems fetched from the API will be displayed here dynamically -->
     </div>
 
     <script>
+        // Function to fetch problems from the API and display them
+        async function fetchProblems() {
+            const response = await fetch('/api/problems');
+            const problems = await response.json();
+
+            const problemList = document.getElementById('problem-list');
+            problemList.innerHTML = '';
+
+            problems.forEach((problem) => {
+                const problemDiv = document.createElement('div');
+                problemDiv.className = 'problem';
+                problemDiv.innerHTML = `
+                    <h3>${problem.title}</h3>
+                    <p>${problem.description}</p>
+                    <div class="status-container">
+                        <span>Status: ${problem.status}</span>
+                        <select onchange="updateStatus(${problem.id}, this)">
+                            <option value="unhandled" ${problem.status === 'unhandled' ? 'selected' : ''}>Unhandled</option>
+                            <option value="ongoing" ${problem.status === 'ongoing' ? 'selected' : ''}>Ongoing</option>
+                            <option value="incomplete" ${problem.status === 'incomplete' ? 'selected' : ''}>Incomplete</option>
+                        </select>
+                        <button class="delete-button" onclick="deleteProblem(${problem.id})">Delete</button>
+                    </div>
+                `;
+
+                problemList.appendChild(problemDiv);
+            });
+        }
+
         // Function to add a new problem
-        function addProblem() {
+        async function addProblem() {
             const titleInput = document.getElementById('title-input');
             const descriptionInput = document.getElementById('description-input');
-
             const title = titleInput.value.trim();
             const description = descriptionInput.value.trim();
 
             if (title !== '' && description !== '') {
-                const problemList = document.getElementById('problem-list');
-                const newProblem = document.createElement('div');
-                newProblem.className = 'problem';
-                newProblem.innerHTML = `
-                    <h3>${title}</h3>
-                    <p>${description}</p>
-                    <div class="status-container">
-                        <select onchange="changeStatus(this)">
-                            <option value="unhandled">Unhandled</option>
-                            <option value="ongoing">Ongoing</option>
-                            <option value="incomplete">Incomplete</option>
-                        </select>
-                        <button class="delete-button" onclick="deleteProblem(this)">Delete</button>
-                    </div>
-                `;
+                const response = await fetch('/api/problems', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        title,
+                        description,
+                        status: 'unhandled',
+                    }),
+                });
 
-                problemList.appendChild(newProblem);
-                titleInput.value = '';
-                descriptionInput.value = '';
+                if (response.status === 201) {
+                    titleInput.value = '';
+                    descriptionInput.value = '';
+                    fetchProblems();
+                } else {
+                    console.error('Failed to add the problem.');
+                }
             }
         }
 
-        // Function to change the status of a problem
-        function changeStatus(select) {
-            const problem = select.parentElement.parentElement;
+        // Function to update the status of a problem
+        async function updateStatus(id, select) {
             const status = select.value;
-            const statusText = problem.querySelector('.status-container span');
-            statusText.textContent = `Status: ${status}`;
+            const response = await fetch(`/api/problems/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status }),
+            });
+
+            if (response.status !== 200) {
+                console.error('Failed to update the status of the problem.');
+            }
         }
 
         // Function to delete a problem
-        function deleteProblem(button) {
-            const problem = button.parentElement.parentElement;
-            problem.remove();
+        async function deleteProblem(id) {
+            const response = await fetch(`/api/problems/${id}`, {
+                method: 'DELETE',
+            });
+
+            if (response.status === 204) {
+                fetchProblems();
+            } else {
+                console.error('Failed to delete the problem.');
+            }
         }
 
         // Add an event listener for the "Add Problem" button
         const addProblemButton = document.getElementById('add-problem-button');
         addProblemButton.addEventListener('click', addProblem);
+
+        // Fetch and display problems on page load
+        fetchProblems();
     </script>
 </body>
 </html>
