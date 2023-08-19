@@ -1,60 +1,83 @@
-const express = require('express');
-const app = express();
-const port = 3000;
-const path = require('path');
-
-app.use(express.static('public'));
-app.use(express.json());
-
-// Store the problems in an array (for demonstration purposes; use a database in production)
-const problems = [];
-
-// Function to generate a unique ID for a problem
-function generateProblemId() {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+/* Reset some default browser styles */
+body, h1, h2, ul, p {
+    margin: 0;
+    padding: 0;
 }
 
-// Route to retrieve all problems
-app.get('/problems', (req, res) => {
-    res.json(problems);
-});
+/* Set a dark background color and light text color for the body */
+body {
+    background-color: #333;
+    font-family: Arial, sans-serif;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
 
-// Route to add a new problem
-app.post('/problems', (req, res) => {
-    const newProblem = req.body;
-    newProblem.id = generateProblemId();
-    problems.push(newProblem);
-    res.status(201).json(newProblem);
-});
+/* Style the header with a darker background color and centered text */
+h1 {
+    background-color: #222;
+    color: #fff;
+    text-align: center;
+    padding: 20px 0;
+    margin-bottom: 20px;
+}
 
-// Route to update a problem's status
-app.patch('/problems/:id', (req, res) => {
-    const idToUpdate = req.params.id;
-    const { status } = req.body;
-    
-    const problemIndex = problems.findIndex(problem => problem.id === idToUpdate);
+/* Center the content on the page */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #444;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
 
-    if (problemIndex === -1) {
-        res.sendStatus(404); // Not Found
-    } else {
-        problems[problemIndex].status = status;
-        res.sendStatus(204); // No Content (successful update)
-    }
-});
+/* Style input fields and textareas with a dark background */
+input[type="text"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    background-color: #555;
+    border: 1px solid #444;
+    border-radius: 3px;
+    color: #fff;
+}
 
-// Route to delete a problem
-app.delete('/problems/:id', (req, res) => {
-    const idToDelete = req.params.id;
-    const problemIndex = problems.findIndex(problem => problem.id === idToDelete);
+/* Style buttons with a dark background and light text */
+button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
 
-    if (problemIndex === -1) {
-        res.sendStatus(404); // Not Found
-    } else {
-        problems.splice(problemIndex, 1);
-        res.sendStatus(204); // No Content (successful delete)
-    }
-});
+button:hover {
+    background-color: #0056b3;
+}
 
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+/* Style the problem list with a dark background */
+#problemList {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#problemList li {
+    background-color: #555;
+    border: 1px solid #444;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+/* Style the mod pack version display with a dark background */
+#modPackVersion {
+    font-weight: bold;
+    color: #007bff;
+}
