@@ -9,14 +9,12 @@
             font-family: Arial, sans-serif;
             background-color: #333;
             color: #fff;
+            padding: 20px;
             margin: 0;
-            padding: 0;
         }
 
         h1 {
             text-align: center;
-            margin-top: 20px;
-            color: #008CBA;
         }
 
         .container {
@@ -24,8 +22,7 @@
             margin: 0 auto;
             padding: 20px;
             background-color: #444;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            border-radius: 5px;
+            border-radius: 10px;
         }
 
         .input-container {
@@ -34,27 +31,25 @@
             gap: 10px;
         }
 
-        input[type="text"],
-        select {
+        input[type="text"] {
             padding: 10px;
             border: none;
             border-radius: 5px;
             font-size: 16px;
-            background-color: #555;
-            color: #fff;
         }
 
         .problem {
+            display: flex;
+            flex-direction: column;
             padding: 15px;
+            border: 1px solid #555;
             margin: 10px 0;
             border-radius: 5px;
             background-color: #666;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
 
         .problem h3 {
             margin: 0;
-            color: #008CBA;
         }
 
         .status-container {
@@ -65,15 +60,11 @@
 
         select {
             padding: 5px;
-        }
-
-        .delete-button {
-            padding: 5px 10px;
-            background-color: #ff6666;
+            background-color: #555;
             color: #fff;
             border: none;
             border-radius: 5px;
-            cursor: pointer;
+            font-size: 14px;
         }
 
         #add-problem-button {
@@ -100,47 +91,8 @@
     </div>
 
     <script>
-        // Function to fetch problems from the server and display them
-        async function fetchProblems() {
-            try {
-                const response = await fetch('/problems');
-                const data = await response.json();
-
-                const problemList = document.getElementById('problem-list');
-                problemList.innerHTML = '';
-
-                data.forEach((problem, index) => {
-                    addProblemToUI(problem, index);
-                });
-            } catch (error) {
-                console.error('Error fetching problems:', error);
-            }
-        }
-
-        // Function to add a problem to the UI
-        function addProblemToUI(problem, index) {
-            const problemList = document.getElementById('problem-list');
-            const newProblem = document.createElement('div');
-            newProblem.className = 'problem';
-            newProblem.innerHTML = `
-                <h3>${problem.title}</h3>
-                <p>${problem.description}</p>
-                <div class="status-container">
-                    <span>Status: ${problem.status}</span>
-                    <select onchange="changeStatus(${index}, this)">
-                        <option value="unhandled">Unhandled</option>
-                        <option value="ongoing">Ongoing</option>
-                        <option value="incomplete">Incomplete</option>
-                    </select>
-                    <button class="delete-button" onclick="deleteProblem(${index})">Delete</button>
-                </div>
-            `;
-
-            problemList.appendChild(newProblem);
-        }
-
         // Function to add a new problem
-        async function addProblem() {
+        function addProblem() {
             const titleInput = document.getElementById('title-input');
             const descriptionInput = document.getElementById('description-input');
 
@@ -148,84 +100,45 @@
             const description = descriptionInput.value.trim();
 
             if (title !== '' && description !== '') {
-                try {
-                    const response = await fetch('/problems', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            title,
-                            description,
-                        }),
-                    });
+                const problemList = document.getElementById('problem-list');
+                const newProblem = document.createElement('div');
+                newProblem.className = 'problem';
+                newProblem.innerHTML = `
+                    <h3>${title}</h3>
+                    <p>${description}</p>
+                    <div class="status-container">
+                        <select onchange="changeStatus(this)">
+                            <option value="unhandled">Unhandled</option>
+                            <option value="ongoing">Ongoing</option>
+                            <option value="incomplete">Incomplete</option>
+                        </select>
+                        <button class="delete-button" onclick="deleteProblem(this)">Delete</button>
+                    </div>
+                `;
 
-                    if (response.status === 201) {
-                        const problem = await response.json();
-                        addProblemToUI(problem, problemList.children.length);
-                        titleInput.value = '';
-                        descriptionInput.value = '';
-                    } else {
-                        console.error('Error adding problem:', response.statusText);
-                    }
-                } catch (error) {
-                    console.error('Error adding problem:', error);
-                }
+                problemList.appendChild(newProblem);
+                titleInput.value = '';
+                descriptionInput.value = '';
             }
         }
 
         // Function to change the status of a problem
-        async function changeStatus(index, select) {
+        function changeStatus(select) {
+            const problem = select.parentElement.parentElement;
             const status = select.value;
-
-            try {
-                const response = await fetch(`/problems/${index}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        status,
-                    }),
-                });
-
-                if (response.status === 200) {
-                    const problem = await response.json();
-                    const statusContainer = select.parentElement;
-                    statusContainer.querySelector('span').textContent = `Status: ${problem.status}`;
-                } else {
-                    console.error('Error changing status:', response.statusText);
-                }
-            } catch (error) {
-                console.error('Error changing status:', error);
-            }
+            const statusText = problem.querySelector('.status-container span');
+            statusText.textContent = `Status: ${status}`;
         }
 
         // Function to delete a problem
-        async function deleteProblem(index) {
-            try {
-                const response = await fetch(`/problems/${index}`, {
-                    method: 'DELETE',
-                });
-
-                if (response.status === 200) {
-                    const deletedProblem = await response.json();
-                    const problemList = document.getElementById('problem-list');
-                    problemList.removeChild(problemList.children[index]);
-                } else {
-                    console.error('Error deleting problem:', response.statusText);
-                }
-            } catch (error) {
-                console.error('Error deleting problem:', error);
-            }
+        function deleteProblem(button) {
+            const problem = button.parentElement.parentElement;
+            problem.remove();
         }
 
         // Add an event listener for the "Add Problem" button
         const addProblemButton = document.getElementById('add-problem-button');
         addProblemButton.addEventListener('click', addProblem);
-
-        // Fetch problems when the page loads
-        window.onload = fetchProblems;
     </script>
 </body>
 </html>
