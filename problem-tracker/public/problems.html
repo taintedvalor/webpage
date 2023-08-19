@@ -7,7 +7,6 @@
 </head>
 <body>
     <h1>Modpack Problem List</h1>
-    <p>Modpack Version: <span id="modPackVersion"></span></p>
 
     <!-- List of problems with status -->
     <ul id="problemList"></ul>
@@ -34,17 +33,9 @@
             });
         }
 
-        // Load the mod pack version
-        async function loadModPackVersion() {
-            const response = await fetch("/getModPackVersion");
-            const version = await response.text();
-            document.getElementById("modPackVersion").textContent = version;
-        }
-
-        // Load the problem list and mod pack version when the page loads
+        // Load the problem list when the page loads
         window.addEventListener("load", () => {
             loadProblemList();
-            loadModPackVersion();
         });
     </script>
 </body>
