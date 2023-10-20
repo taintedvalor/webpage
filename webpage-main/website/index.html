@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <!-- Include Swiper CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+</head>
+<body>
+    <div id="top">
+        <a href="https://modrinth.com/user/valor" class="modrinth-button" id="moderatorButton">modrinth</a>
+        <select id="serverDropdown" class="styled-dropdown">
+            <option value="server1">Server 1</option>
+            <option value="server2">Server 2</option>
+            <option value="server3">Server 3</option>
+        </select>
+        <a href="https://discordapp.com" id="discordButton" class="styled-button">Discord</a>
+    </div>
+    <div class="content">
+        <h1>Welcome to Our Gallery</h1>
+        <div class="gallery-container">
+            <div class="swiper-container">
+                <div class="swiper-wrapper">
+                    <!-- Images in the gallery-mainpage folder -->
+                    <div class="swiper-slide">
+                        <img src="gallery-mainpage/image1.jpg" alt="Image 1">
+                        <div class="image-description">Description for Image 1</div>
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="gallery-mainpage/image2.jpg" alt="Image 2">
+                        <div class="image-description">Description for Image 2</div>
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="gallery-mainpage/image3.jpg" alt="Image 3">
+                        <div class="image-description">Description for Image 2</div>
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="gallery-mainpage/image4.jpg" alt="Image 4">
+                        <div class="image-description">Description for Image 4</div>
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="gallery-mainpage/image5.jpg" alt="Image 5">
+                        <div class="image-description">Description for Image 5</div>
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="gallery-mainpage/image6.jpg" alt="Image 6">
+                        <div class="image-description">Description for Image 6</div>
+                    </div>
+                    <!-- Add more images in the same format as needed -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="https://cash.app/$taintedvalor" class="logo">
+        <img src="gallery/hoard.png" alt="Your Logo">
+    </a>
+    <div class="copyright">All Rights Reserved &copy; YourCompany</div>
+
+    <!-- Include Swiper JS -->
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <!-- Initialize Swiper -->
+    <script>
+        var swiper = new Swiper('.swiper-container', {
+            autoplay: {
+                delay: 2000, /* Autoplay delay in milliseconds (adjust as needed) */
+            },
+            loop: true, /* Infinite loop */
+            spaceBetween: 10, /* Space between images */
+        });
+    </script>
+</body>
+</html>
