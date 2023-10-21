@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Page Not Found</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('gallery/night.jpg'); /* Background image */
+      background-size: cover;
+      background-position: center;
+      color: #2c3e50; /* Dark text color */
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    #board {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(80px, 1fr));
+      grid-gap: 5px;
+      margin-top: 20px;
+    }
+
+    .cell {
+      width: 80px;
+      height: 80px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      background-color: #2c3e50; /* Cell color */
+      border: 1px solid #ecf0f1; /* Cell border color */
+    }
+
+    .cell img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .winner, .loser {
+      background-color: #34495e; /* Match background color */
+      padding: 20px;
+      border-radius: 5px;
+      margin-top: 20px;
+      text-align: center;
+      color: #ecf0f1; /* Light text color */
+    }
+
+    .retry-button {
+      background-color: #2ecc71; /* Retry button color */
+      color: #ecf0f1; /* Light text color */
+      padding: 10px 20px;
+      font-size: 1rem;
+      margin-top: 10px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .retry-button:hover {
+      background-color: #27ae60; /* Hover color */
+    }
+
+    .container {
+      text-align: center;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #ecf0f1; /* Light text color */
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 1rem;
+      color: #ecf0f1; /* Light text color */
+    }
+
+    a {
+      color: #00aa00;
+      text-decoration: none;
+    }
+
+    @media screen and (max-width: 600px) {
+      .cell {
+        width: 60px;
+        height: 60px;
+        font-size: 16px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      p {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>404 - Page Not Found</h1>
+  <p>Oops! The page you're looking for doesn't exist.</p>
+  <p>Return to <a href="/">homepage</a>.</p>
+</div>
+
+<div id="board"></div>
+
+<script>
+  const board = document.getElementById('board');
+  let currentPlayer = 'X';
+  let gameBoard = ['', '', '', '', '', '', '', '', ''];
+  let gameActive = true;
+
+  function handleCellClick(index) {
+    if (!gameActive || gameBoard[index] !== '') return;
+
+    gameBoard[index] = currentPlayer;
+    renderBoard();
+
+    if (checkWinner()) {
+      highlightWinner();
+      displayResult('Winner: ' + currentPlayer);
+      showRetryButton();
+      gameActive = false;
+    } else if (gameBoard.every(cell => cell !== '')) {
+      displayResult('It\'s a draw!');
+      showRetryButton();
+      gameActive = false;
+    } else {
+      currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+
+      // AI's turn
+      setTimeout(() => {
+        aiMove();
+        renderBoard();
+
+        if (checkWinner()) {
+          highlightWinner();
+          displayResult('Winner: O (AI)');
+          showRetryButton();
+          gameActive = false;
+        } else if (gameBoard.every(cell => cell !== '')) {
+          displayResult('It\'s a draw!');
+          showRetryButton();
+          gameActive = false;
+        } else {
+          currentPlayer = 'X';
+        }
+      }, 500); // Delay for a better user experience
+    }
+  }
+
+  function aiMove() {
+    // Simple AI: Randomly choose an empty cell
+    const emptyCells = gameBoard.reduce((acc, value, index) => {
+      if (value === '') acc.push(index);
+      return acc;
+    }, []);
+
+    const randomIndex = Math.floor(Math.random() * emptyCells.length);
+    const aiMoveIndex = emptyCells[randomIndex];
+    gameBoard[aiMoveIndex] = 'O';
+  }
+
+  function renderBoard() {
+    board.innerHTML = '';
+    gameBoard.forEach((value, index) => {
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      if (value === 'X') {
+        const img = document.createElement('img');
+        img.src = 'gallery/x.jpg'; // Image for X
+        cell.appendChild(img);
+      } else if (value === 'O') {
+        const img = document.createElement('img');
+        img.src = 'gallery/o.jpg'; // Image for O
+        cell.appendChild(img);
+      }
+      cell.addEventListener('click', () => handleCellClick(index));
+      board.appendChild(cell);
+    });
+  }
+
+  function checkWinner() {
+    const winPatterns = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6]
+    ];
+
+    return winPatterns.some(pattern =>
+      pattern.every(index => gameBoard[index] === currentPlayer)
+    );
+  }
+
+  function highlightWinner() {
+    const cells = Array.from(board.children);
+    const winPattern = getWinPattern();
+
+    winPattern.forEach(index => {
+      cells[index].classList.add('winner');
+    });
+  }
+
+  function getWinPattern() {
+    const winPatterns = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6]
+    ];
+
+    return winPatterns.find(pattern =>
+      pattern.every(index => gameBoard[index] === currentPlayer)
+    );
+  }
+
+  function displayResult(message) {
+    const result = document.createElement('div');
+    result.textContent = message;
+    result.style.fontSize = '24px';
+    result.style.fontWeight = 'bold';
+    result.style.marginTop = '20px';
+    document.body.appendChild(result);
+  }
+
+  function showRetryButton() {
+    const retryButton = document.createElement('button');
+    retryButton.textContent = 'Retry';
+    retryButton.classList.add('retry-button');
+    retryButton.addEventListener('click', () => location.reload());
+    document.body.appendChild(retryButton);
+  }
+
+  renderBoard();
+</script>
+
+</body>
+</html>

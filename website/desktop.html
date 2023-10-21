@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>home</title>
+    <link rel="icon" href="gallery/hoardicon.png">
+    <link rel="icon" type="image/png" href="gallery/valor_bound4.png">
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <!-- Include Swiper CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+</head>
+
+<body>
+    <div id="top">
+        <a href="https://modrinth.com/user/valor" class="modrinth-button" id="moderatorButton">modrinth</a>
+        <select id="serverDropdown" class="styled-dropdown">
+            <option value="">Options</option>
+            <option value="Sanctuary.html">Sanctuary</option>
+            <option value="fortress.html">fortress</option>
+            <option value="Get-colonized!.html">Get colonized!</option>
+        </select>
+        <a href="https://discordapp.com" id="discordButton" class="modrinth-button">Discord</a>
+        <a href="Lore-page/index.html" id="loreButton" class="modrinth-button">Lore</a>
+    </div>
+    <div class="content">
+        <h1>Welcome to my Gallery</h1>
+        <div class="gallery-container">
+            <div class="swiper-container">
+                <div class="swiper-wrapper">
+                    <!-- Images in the gallery folder -->
+                    <div class="swiper-slide">
+                        <img src="gallery/image1.jpg" alt="Image 1">
+                        <div class="image-description">Sanctuary Spawn</div>
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="gallery/image2.jpg" alt="Image 2">
+                        <div class="image-description">Sanctuary Spawn</div>
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="gallery/image3.jpg" alt="Image 3">
+                        <div class="image-description">Sanctuary Spawn</div>
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="gallery/image6.jpg" alt="Image 4">
+                        <div class="image-description">Sanctuary Spawn</div>
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="gallery/the-penis.jpg" alt="Image 5">
+                        <div class="image-description">it is not a penis pls believe me</div>
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="gallery/qwerfh.png" alt="Image 6">
+                        <div class="image-description">The tip</div>
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="gallery/fortress1.png" alt="Image 6">
+                        <div class="image-description">Fortress Spawn</div>
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="gallery/fortress5.png" alt="Image 7">
+                        <div class="image-description">Fortress Spawn</div>
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="gallery/fortress3.png" alt="Image 8">
+                        <div class="image-description">Fortress Spawn</div>
+                    </div>
+                    <!-- Add more images in the same format as needed -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="https://cash.app/$taintedvalor" class="logo">
+        <img src="gallery/hoard.png" alt="Your Logo">
+    </a>
+    <div class="copyright">All Rights Reserved &copy; valor!!</div>
+
+    <!-- Include Swiper JS -->
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <!-- JavaScript for dropdown redirection -->
+    <script>
+        var serverDropdown = document.getElementById("serverDropdown");
+
+        serverDropdown.addEventListener("change", function() {
+            var selectedPage = serverDropdown.value;
+            if (selectedPage) {
+                window.location.href = selectedPage;
+            }
+        });
+
+        var swiper = new Swiper('.swiper-container', {
+            autoplay: {
+                delay: 2000, /* Autoplay delay in milliseconds (adjust as needed) */
+            },
+            loop: true, /* Infinite loop */
+            spaceBetween: 10, /* Space between images */
+        });
+    </script>
+</body>
+
+</html>
